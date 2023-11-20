@@ -1,21 +1,28 @@
 //jshint esversion:6
 import express from "express";
 import bodyParser from "body-parser";
-import path from 'path';
+import path from "path";
 import { fileURLToPath } from "url";
-import { dirname } from 'path';
+import { dirname } from "path";
 import mongoose from "mongoose";
+import encrypt from "mongoose-encryption";
 
 // Properties:-
 const app = express();
 const port = 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const uri = 'mongodb://127.0.0.1:27017/userDB';
+const { Schema } = mongoose;
 
-const User = mongoose.model('User', {
-    name:       String,
-    password:   String
+const userSchema = new Schema({
+    name: String,
+    password: String
 });
+
+const User = new mongoose.model("Users", userSchema)
+const secret = 'thisisourlittlesecret';
+
+userSchema.plugin(encrypt, { secret: secret, encryptedFields: ['password'] });
 
 // Methods:-
 mongoose.connect(uri);
