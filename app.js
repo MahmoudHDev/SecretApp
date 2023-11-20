@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 import { dirname } from 'path';
 import mongoose from "mongoose";
 
-
 // Properties:-
 const app = express();
 const port = 3000;
@@ -19,7 +18,6 @@ const User = mongoose.model('User', {
 });
 
 // Methods:-
-
 mongoose.connect(uri);
 
 app.set('view engine', 'ejs');
@@ -47,8 +45,7 @@ app.route('/login')
                 res.status(200).render("secrets");
             } else {
                 // Handle case when user is not found or passwords don't match
-                console.log("Check the username or the password.")
-                res.status(401).send("Invalid credentials");
+                res.status(401).send("Check the username or the password");
             }
         } catch (error) {
             console.error("Error occurred:", error);
