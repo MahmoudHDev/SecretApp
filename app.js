@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import mongoose from "mongoose";
-import encrypt from "mongoose-encryption";
+import md5 from 'md5';
 
 // Properties:-
 const app = express();
@@ -21,8 +21,6 @@ const userSchema = new Schema({
 });
 
 const User = new mongoose.model("Users", userSchema);
-
-userSchema.plugin(encrypt, { secret: process.env.SECRET, encryptedFields: ['password'] });
 
 // Methods:-
 mongoose.connect(uri);
@@ -48,7 +46,7 @@ app.route('/login')
 
             console.log('User from DB:', user); // Check if user is found in the console
 
-            if (user && user.password === userPassword) {
+            if (user && user.password === md5(userPassword)) {
                 // Perform your actions when the user is found and passwords match
                 res.status(200).render("secrets");
             } else {
@@ -70,9 +68,10 @@ app.route('/register')
         try {
             const userEmail = req.body.username;
             const userPassword = req.body.password;
+
             const userData = new User({
                 name: userEmail,
-                password: userPassword
+                password: md5(userPassword)
             });
             await userData.save();
             res.status(200).render("secrets");
