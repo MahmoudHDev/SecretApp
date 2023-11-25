@@ -6,7 +6,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import mongoose from "mongoose";
-import md5 from 'md5';
+// import md5 from 'md5';
+import bcrypt from 'bcrypt';
+
 
 // Properties:-
 const app = express();
@@ -14,6 +16,10 @@ const port = 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const uri = 'mongodb://127.0.0.1:27017/userDB';
 const { Schema } = mongoose;
+
+
+// how many rounds to encrypt my password.
+const saltRounds = 10;
 
 const userSchema = new Schema({
     name: String,
@@ -24,7 +30,6 @@ const User = new mongoose.model("Users", userSchema);
 
 // Methods:-
 mongoose.connect(uri);
-console.log(process.env.API_KEY);
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -64,17 +69,25 @@ app.route('/register')
         //To view the register page as a result of the get request.
         res.render('register');
     })
-    .post(async (req, res) => {
+    .post((req, res) => {
         try {
             const userEmail = req.body.username;
             const userPassword = req.body.password;
-
-            const userData = new User({
-                name: userEmail,
-                password: md5(userPassword)
+            bcrypt.genSalt(saltRounds, (err, salt) => {
+                bcrypt.hash(userPassword, salt, async (err, hash) => {
+                    // Store hash in your password DB.
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        const userData = new User({
+                            name: userEmail,
+                            password: hash
+                        });
+                        await userData.save();
+                        res.status(200).render("secrets");
+                    }
+                });
             });
-            await userData.save();
-            res.status(200).render("secrets");
         } catch (error) {
             res.status(400).send(`Error has been occured ${error}`);
         }
