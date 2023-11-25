@@ -51,9 +51,19 @@ app.route('/login')
 
             console.log('User from DB:', user); // Check if user is found in the console
 
-            if (user && user.password === md5(userPassword)) {
+            // Load hash from your password DB.
+
+            if (user) {
                 // Perform your actions when the user is found and passwords match
-                res.status(200).render("secrets");
+                bcrypt.compare(userPassword, user.password, function (err, result) {
+                    if (result == true) {
+                        res.status(200).render("secrets");
+                    } else {
+                        console.log(err);
+                        res.status(401).send("Check the username or the password");
+                    }
+                });
+
             } else {
                 // Handle case when user is not found or passwords don't match
                 res.status(401).send("Check the username or the password");
