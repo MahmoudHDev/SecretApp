@@ -43,7 +43,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/secrets",
-    userProfileURL:"https://www.googleapis.com/oauth2/v3/userinfo",
+    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     passReqToCallback: true
 },
     function (request, accessToken, refreshToken, profile, done) {
@@ -75,6 +75,21 @@ app.get(('/'), (req, res) => {
     res.render('home');
     console.log(req.isAuthenticated());
 });
+
+// Passport Google Auth strategy/plugin
+app.get('/auth/google',
+    passport.authenticate('google', {
+        scope:
+            ['email', 'profile']
+    }
+    ));
+
+app.get('/auth/google/secrets',
+    passport.authenticate('google', {
+        successRedirect: '/secrets',
+        failureRedirect: '/login'
+    }));
+
 
 app.route('/register')
     .get((req, res) => {
