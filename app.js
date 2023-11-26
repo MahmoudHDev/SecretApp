@@ -11,6 +11,8 @@ import bcrypt from 'bcrypt';
 import session from 'express-session';
 import passport from 'passport';
 import passportLocalMongoose from 'passport-local-mongoose';
+import GoogleStrategy from ('passport-google-oauth2').Strategy;
+import findOrCreate from ('mongoose-findorcreate');
 
 // Properties:-
 const app = express();
@@ -28,13 +30,28 @@ userSchema.plugin(passportLocalMongoose, {
     // Set usernameUnique to false to avoid a mongodb index on the username column!
     usernameUnique: false,
 });
-// const User = new mongoose.model("Users", userSchema);
+userSchema.plugin(findOrCreate);
+
 const User = mongoose.model('Users', userSchema);
-// 
+
 passport.use(User.createStrategy());
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/google/secrets",
+    userProfileURL:"https://www.googleapis.com/oauth2/v3/userinfo",
+    passReqToCallback: true
+},
+    function (request, accessToken, refreshToken, profile, done) {
+        User.findOrCreate({ googleId: profile.id }, function (err, user) {
+            return done(err, user);
+        });
+    }
+));
 
 // Methods:-
 mongoose.connect(uri);
