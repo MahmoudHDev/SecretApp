@@ -12,6 +12,7 @@ import session from 'express-session';
 import passport from 'passport';
 import passportLocalMongoose from 'passport-local-mongoose';
 
+
 // Properties:-
 const app = express();
 const port = 3000;
@@ -84,9 +85,29 @@ app.route('/register')
 app.route('/login')
     .get((req, res) => {
         res.render('login');
-    });
+    })
+app.post('/login', (req, res, next) => {
 
-app.get('/secrets',async (req, res) => {
+
+    
+
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return res.redirect('/login'); // Redirect if login fails
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            return res.redirect('/secrets'); // Redirect if login succeeds
+        });
+    })(req, res, next);
+});
+
+app.get('/secrets', async (req, res) => {
     if (req.isAuthenticated()) {
         console.log("user is Authenticated");
         res.render('secrets')
