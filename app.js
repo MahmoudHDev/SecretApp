@@ -12,7 +12,6 @@ import session from 'express-session';
 import passport from 'passport';
 import passportLocalMongoose from 'passport-local-mongoose';
 
-
 // Properties:-
 const app = express();
 const port = 3000;
@@ -87,10 +86,6 @@ app.route('/login')
         res.render('login');
     })
 app.post('/login', (req, res, next) => {
-
-
-    
-
     passport.authenticate('local', (err, user, info) => {
         if (err) {
             return next(err);
@@ -116,7 +111,6 @@ app.get('/secrets', async (req, res) => {
         res.redirect('/login')
     }
 });
-
 
 app.listen(port, () => {
     console.log("App started Listening");
