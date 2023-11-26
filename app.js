@@ -11,8 +11,8 @@ import bcrypt from 'bcrypt';
 import session from 'express-session';
 import passport from 'passport';
 import passportLocalMongoose from 'passport-local-mongoose';
-import GoogleStrategy from ('passport-google-oauth2').Strategy;
-import findOrCreate from ('mongoose-findorcreate');
+import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
+import findOrCreate from 'mongoose-findorcreate';
 
 // Properties:-
 const app = express();
