@@ -36,8 +36,19 @@ const User = mongoose.model('Users', userSchema);
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+// Serialize user
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+// Deserialize user
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    });
+});
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -90,7 +101,6 @@ app.get('/auth/google/secrets',
         failureRedirect: '/login'
     }));
 
-
 app.route('/register')
     .get((req, res) => {
         //To view the register page as a result of the get request.
@@ -113,10 +123,10 @@ app.route('/register')
         });
     });
 
-app.route('/login')
-    .get((req, res) => {
-        res.render('login');
-    })
+app.get((req, res) => {
+    res.render('login');
+});
+
 app.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
